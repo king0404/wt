@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="file.xsl"?>
+<web>
+    <books>
+        <title>Web Services</title>
+        <author>Bob Dylan</author>
+    </books>
+    <books>
+        <title>XML and Web</title>
+        <author>Williams</author>
+    </books>
+    <books>
+        <title>Javascript</title>
+        <author>Christopher</author>
+    </books>
+</web>

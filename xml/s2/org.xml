@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="file2.xsl"?>
+<org>
+<emp dept="ECE" eid="e1">
+<name>Raj</name>
+<sal>2000</sal>
+</emp>
+<emp dept="IT" eid="e2">
+<name>Jai</name>
+<sal>3000</sal>
+</emp>
+<emp dept="EEE" eid="e3">
+<name>Jhon</name>
+<sal>30000</sal>
+</emp>
+</org>
