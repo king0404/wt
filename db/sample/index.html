@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="productApp">
+<head >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body ng-controller="productctrl">
+
+
+    <form ng-submit="addProduct()">
+
+        <input type="text" ng-model="product.name" placeholder="Enter Product Name">
+        <input type="number" ng-model="product.quantity" placeholder="Enter Quantity">
+        <button type="submit">AddProduct</button>
+    </form>
+    <input type="text" ng-model="searchText" placeholder="Search by Product Name">
+<br><br>
+
+<table>
+    <tr>
+    <th>Product_Name</th>
+    <th>Product Quantity</th>
+     <th>Actions</th>
+    </tr>
+    <tr ng-repeat="p in products | filter:{name: searchText}">
+      <td>
+        <input type="text" ng-model="p.name">
+      </td>
+      <td>
+        <input type="number" ng-model="p.quantity">
+      </td>
+      <td>
+        <button ng-click="updateProduct(p)">Update</button>
+        <button ng-click="deleteProduct(p._id)">Delete</button>
+      </td>
+    </tr>
+</table>
+
+
+<script>
+
+    const app=angular.module('productApp',[]);
+    app.controller('productctrl',function($scope,$http){
+
+        const API='http://localhost:3001/products';
+
+        function loadProducts()
+        {
+            $http.get(API).then(res=>$scope.products=res.data);
+        }
+        loadProducts();
+
+        $scope.addProduct=function(){
+            $http.post(API,$scope.product).then(()=>{
+            $scope.product={};
+            loadProducts();
+            }
+        );
+        }
+        $scope.updateProduct=function(p)
+        {
+            $http.put(API+'/'+p._id,p).then(loadProducts);
+        }
+        $scope.deleteProduct=function(id)
+        {
+         
+            $http.delete(API+'/'+id).then(loadProducts);
+        }
+
+    });
+</script>
+    
+</body>
+</html>

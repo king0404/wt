@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html ng-app="productApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Catalog</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        input, button { margin: 5px; }
+        .product { border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 5px; }
+    </style>
+</head>
+<body ng-controller="productCtrl">
+
+<h1>Product Catalog</h1>
+
+<!-- Add / Update Product -->
+<div>
+    <input type="text" ng-model="product.name" placeholder="Product Name">
+    <input type="number" ng-model="product.quantity" placeholder="Quantity">
+    <button ng-click="isEditing ? updateProduct() : addProduct()">{{isEditing ? 'Update' : 'Add'}}</button>
+    <button ng-if="isEditing" ng-click="cancelEdit()">Cancel</button>
+</div>
+
+<!-- Search and Order -->
+<div>
+    <input type="text" ng-model="searchText" placeholder="Search by product name">
+    <button ng-click="toggleOrder()">Order by Quantity {{orderAsc ? '▲' : '▼'}}</button>
+</div>
+
+<!-- Product List -->
+<div class="product" ng-repeat="p in products | filter:{name: searchText} | orderBy:'quantity':!orderAsc">
+    <strong>{{p.name}}</strong> - Quantity: {{p.quantity}}
+    <button ng-click="editProduct(p)">Edit</button>
+    <button ng-click="deleteProduct(p._id)">Delete</button>
+</div>
+
+<script>
+var app = angular.module('productApp', []);
+
+app.factory('productFactory', ['$http', function($http){
+    const baseURL = 'http://localhost:3000/products';
+    return {
+        getProducts: () => $http.get(baseURL),
+        addProduct: (p) => $http.post(baseURL, p),
+        updateProduct: (p) => $http.put(baseURL + '/' + p._id, p),
+        deleteProduct: (id) => $http.delete(baseURL + '/' + id)
+    };
+}]);
+
+app.controller('productCtrl', ['$scope','productFactory', function($scope, productFactory){
+    $scope.products = [];
+    $scope.product = {};
+    $scope.isEditing = false;
+    $scope.orderAsc = true;
+    $scope.searchText = '';
+
+    function loadProducts(){
+        productFactory.getProducts().then(res => $scope.products = res.data)
+        .catch(err => console.error(err));
+    }
+
+    loadProducts();
+
+    // Add Product
+    $scope.addProduct = function(){
+        if(!$scope.product.name || $scope.product.quantity == null) return alert("Enter name & quantity");
+        productFactory.addProduct($scope.product).then(res => {
+            $scope.product = {};
+            loadProducts();
+        }).catch(err => console.error(err));
+    }
+
+    // Edit Product
+    $scope.editProduct = function(p){
+        $scope.product = angular.copy(p);
+        $scope.isEditing = true;
+    }
+
+    $scope.cancelEdit = function(){
+        $scope.product = {};
+        $scope.isEditing = false;
+    }
+
+    // Update Product
+    $scope.updateProduct = function(){
+        productFactory.updateProduct($scope.product).then(res => {
+            $scope.product = {};
+            $scope.isEditing = false;
+            loadProducts();
+        }).catch(err => console.error(err));
+    }
+
+    // Delete Product
+    $scope.deleteProduct = function(id){
+        productFactory.deleteProduct(id).then(res => loadProducts())
+        .catch(err => console.error(err));
+    }
+
+    // Toggle order by quantity
+    $scope.toggleOrder = function(){
+        $scope.orderAsc = !$scope.orderAsc;
+    }
+}]);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html ng-app="movieApp">
+<head>
+  <meta charset="UTF-8">
+  <title>🎬 Online Movie Ticket Booking</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .screen {
+      background: #444;
+      color: white;
+      padding: 10px;
+      margin: 20px 0;
+    }
+    .seats {
+      display: grid;
+      grid-template-columns: repeat(8, 40px);
+      gap: 10px;
+      justify-content: center;
+    }
+    .seat {
+      width: 40px;
+      height: 40px;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #ccc;
+      line-height: 40px;
+    }
+    .seat.selected {
+      background: #28a745;
+      color: white;
+    }
+    .seat.booked {
+      background: #d9534f;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body ng-controller="BookingCtrl">
+
+  <h2>🎟 Online Movie Ticket Booking</h2>
+
+  <div class="screen">🎥 Movie Screen</div>
+
+  <!-- Seat layout -->
+  <div class="seats">
+    <div ng-repeat="seat in seats"
+         class="seat"
+         ng-class="{selected: seat.selected, booked: seat.booked}"
+         ng-click="toggleSeat(seat)">
+      {{ seat.id }}
+    </div>
+  </div>
+
+  <br>
+
+  <input type="text" ng-model="userName" placeholder="Your Name" required>
+
+  <button ng-click="bookSeats()" ng-disabled="!selectedSeats().length || !userName">
+    Book Seats
+  </button>
+
+  <h3>Your Selected Seats:</h3>
+  <p>{{ selectedSeats().join(', ') || 'None' }}</p>
+
+  <script>
+    var app = angular.module('movieApp', []);
+
+    app.controller('BookingCtrl', function($scope, $http) {
+      const backendUrl = 'http://localhost:3020';
+
+      // Create seat layout A1–D8
+      $scope.seats = [];
+      ['A','B','C','D'].forEach(row => {
+        for (let i = 1; i <= 8; i++) {
+          $scope.seats.push({ id: row + i, selected: false, booked: false });
+        }
+      });
+
+      // Toggle seat selection
+      $scope.toggleSeat = function(seat) {
+        if (seat.booked) return; // can't reselect booked seats
+        seat.selected = !seat.selected;
+      };
+
+      // Get selected seats
+      $scope.selectedSeats = function() {
+        return $scope.seats.filter(s => s.selected).map(s => s.id);
+      };
+
+      // Book seats
+      $scope.bookSeats = function() {
+        const data = {
+          movie: 'Avengers: Endgame',
+          name: $scope.userName,
+          seats: $scope.selectedSeats()
+        };
+
+        $http.post(backendUrl + '/api/bookings', data).then(res => {
+          alert('Booking Successful!');
+          // mark seats as booked
+          $scope.seats.forEach(s => {
+            if ($scope.selectedSeats().includes(s.id)) {
+              s.booked = true;
+              s.selected = false;
+            }
+          });
+          $scope.userName = '';
+        });
+      };
+    });
+  </script>
+
+</body>
+</html>

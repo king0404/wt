@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html ng-app="employeeApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Management Dashboard</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    h1 { text-align: center; }
+    form, table { width: 80%; margin: auto; }
+    input { padding: 5px; margin: 5px; }
+    button { padding: 5px 10px; margin: 5px; cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+  </style>
+</head>
+<body ng-controller="EmployeeController as ec">
+
+  <h1>Employee Management Dashboard</h1>
+
+  <!-- Add Employee Form -->
+  <form ng-submit="ec.addEmployee()">
+    <input type="text" ng-model="ec.newEmployee.name" placeholder="Name" required>
+    <input type="text" ng-model="ec.newEmployee.position" placeholder="Position" required>
+    <input type="number" ng-model="ec.newEmployee.salary" placeholder="Salary" required>
+    <button type="submit">Add Employee</button>
+  </form>
+
+  <!-- Employee Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Position</th>
+        <th>Salary</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="emp in ec.employees track by emp._id">
+        <td><input ng-model="emp.name"></td>
+        <td><input ng-model="emp.position"></td>
+        <td><input ng-model="emp.salary" type="number"></td>
+        <td>
+          <button ng-click="ec.updateEmployee(emp)">Update</button>
+          <button ng-click="ec.deleteEmployee(emp)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    var app = angular.module("employeeApp", []);
+
+    app.controller("EmployeeController", ["$http", function($http) {
+      var vm = this;
+      vm.employees = [];
+      vm.newEmployee = {};
+
+      const API_URL = "http://localhost:8080/api/employees";
+
+      // Load employees
+      vm.loadEmployees = function() {
+        $http.get(API_URL).then(function(res) {
+          vm.employees = res.data;
+        });
+      };
+
+      // Add employee
+      vm.addEmployee = function() {
+        if (!vm.newEmployee.name || !vm.newEmployee.position || !vm.newEmployee.salary) return;
+        $http.post(API_URL, vm.newEmployee).then(function(res) {
+          vm.employees.push(res.data);
+          vm.newEmployee = {};
+        });
+      };
+
+      // Update employee
+      vm.updateEmployee = function(emp) {
+        $http.put(API_URL + "/" + emp._id, emp).then(function() {
+          alert("Employee updated!");
+        });
+      };
+
+      // Delete employee
+      vm.deleteEmployee = function(emp) {
+        if (confirm("Are you sure?")) {
+          $http.delete(API_URL + "/" + emp._id).then(function() {
+            vm.employees = vm.employees.filter(e => e._id !== emp._id);
+          });
+        }
+      };
+
+      // Initial load
+      vm.loadEmployees();
+    }]);
+  </script>
+
+</body>
+</html>

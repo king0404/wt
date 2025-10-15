@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html ng-app="weatherApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Information App</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f7;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .weather-container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .temp {
+      font-size: 2em;
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body ng-controller="WeatherController">
+
+  <h1>Weather Information App</h1>
+  <div class="weather-container">
+    <input type="text" ng-model="city" placeholder="Enter city name">
+    <button ng-click="getWeather()">Get Weather</button>
+
+    <weather-display data="weatherData"></weather-display>
+  </div>
+
+</body>
+</html>

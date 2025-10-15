@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app="contactApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact Management System</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="/app.js"></script>
+</head>
+<body ng-controller="ContactController">
+  <h2>📇 Contact Management</h2>
+
+  <form ng-submit="addOrUpdateContact()">
+    <input type="text" ng-model="contact.name" placeholder="Name" required>
+    <input type="email" ng-model="contact.email" placeholder="Email" required>
+    <input type="text" ng-model="contact.phone" placeholder="Phone" required>
+    <button type="submit">{{ editMode ? "Update" : "Add" }}</button>
+    <button type="button" ng-click="clearForm()">Clear</button>
+  </form>
+
+  <h3>Contact List</h3>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Actions</th>
+    </tr>
+    <tr ng-repeat="c in contacts">
+      <td>{{ c.name }}</td>
+      <td>{{ c.email }}</td>
+      <td>{{ c.phone }}</td>
+      <td>
+        <button ng-click="editContact(c)">Edit</button>
+        <button ng-click="deleteContact(c._id)">Delete</button>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

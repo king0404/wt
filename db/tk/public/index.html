@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="taskApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Task Manager</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body { font-family: Arial; max-width: 400px; margin: 40px auto; }
+    input[type=text] { padding: 6px; width: 70%; }
+    button { margin: 4px; padding: 5px 8px; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body ng-controller="TaskCtrl">
+  <h2>📝 Task Management System</h2>
+
+  <input type="text" ng-model="newTask.title" placeholder="Enter new task">
+  <button ng-click="addTask()">Add</button>
+
+  <ul>
+    <li ng-repeat="t in tasks">
+      <input type="checkbox" ng-model="t.done" ng-change="updateTask(t)">
+      
+      <!-- Edit mode -->
+      <span ng-if="t.editing">
+        <input type="text" ng-model="t.title">
+        <button ng-click="saveEdit(t)">Save</button>
+        <button ng-click="t.editing=false">Cancel</button>
+      </span>
+
+      <!-- Normal mode -->
+      <span ng-if="!t.editing" ng-style="{'text-decoration': t.done ? 'line-through' : 'none'}">
+        {{t.title}}
+        <button ng-click="t.editing=true">Edit</button>
+        <button ng-click="deleteTask(t._id)">❌</button>
+      </span>
+    </li>
+  </ul>
+
+  <script>
+    const app = angular.module("taskApp", []);
+    app.controller("TaskCtrl", function($scope, $http) {
+      const api = "http://localhost:3000/tasks";
+      $scope.tasks = [];
+
+      // Fetch all tasks
+      $http.get(api).then(res => $scope.tasks = res.data);
+
+      // Add new task
+      $scope.addTask = () => {
+        if (!$scope.newTask.title) return;
+        $http.post(api, { title: $scope.newTask.title, done: false }).then(res => {
+          $scope.tasks.push(res.data);
+          $scope.newTask.title = "";
+        });
+      };
+
+      // Update (done checkbox or name)
+      $scope.updateTask = (t) => {
+        $http.put(api + "/" + t._id, t);
+      };
+
+      // Save edited task name
+      $scope.saveEdit = (t) => {
+        $http.put(api + "/" + t._id, { title: t.title, done: t.done }).then(() => {
+          t.editing = false;
+        });
+      };
+
+      // Delete task
+      $scope.deleteTask = (id) => {
+        $http.delete(api + "/" + id).then(() => {
+          $scope.tasks = $scope.tasks.filter(task => task._id !== id);
+        });
+      };
+    });
+  </script>
+</body>
+</html>

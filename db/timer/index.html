@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html ng-app="quizApp">
+<head>
+    <meta charset="UTF-8">
+    <title>AngularJS Quiz with Timer</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .question { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .timer { font-size: 20px; font-weight: bold; color: red; }
+        button { margin-top: 10px; }
+    </style>
+</head>
+<body ng-controller="quizCtrl">
+
+<h1>Quiz Timer App</h1>
+<div class="timer">Time Left: {{timeLeft}} seconds</div>
+
+<!-- Show only the current question -->
+<question q="currentQuestion" on-answer="updateScore(isCorrect)"></question>
+
+<h2>Score: {{score}}</h2>
+
+<script>
+var app = angular.module('quizApp', []);
+
+app.directive('question', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            q: '=',
+            onAnswer: '&'
+        },
+        template: `
+            <div class="question" ng-if="q">
+                <strong>{{q.text}}</strong>
+                <div ng-repeat="option in q.options">
+                    <input type="radio" ng-model="q.selected" ng-value="option"> {{option}}
+                </div>
+                <button ng-click="checkAnswer()">Submit</button>
+            </div>
+        `,
+        link: function(scope) {
+            scope.checkAnswer = function() {
+                if(scope.q.selected === scope.q.answer){
+                    scope.onAnswer({isCorrect:true});
+                } else {
+                    scope.onAnswer({isCorrect:false});
+                }
+            }
+        }
+    }
+});
+
+app.controller('quizCtrl', function($scope, $http, $interval) {
+
+    // All questions
+    let allQuestions = [
+        {text:"What is 2+2?", options:[2,3,4,5], answer:4},
+        {text:"Capital of India?", options:["Delhi","Mumbai","Chennai"], answer:"Delhi"},
+        {text:"Which is a programming language?", options:["HTML","Python","CSS"], answer:"Python"},
+        {text:"Color of the sky?", options:["Blue","Green","Red"], answer:"Blue"},
+        {text:"5 * 3 =", options:[8,15,10,20], answer:15},
+        {text:"Water formula?", options:["H2O","CO2","O2"], answer:"H2O"},
+        {text:"Which planet is known as Red Planet?", options:["Mars","Venus","Earth"], answer:"Mars"}
+    ];
+
+    // Pick 5 random questions
+    function getRandomQuestions(arr, n){
+        let shuffled = arr.sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, n);
+    }
+
+    $scope.questions = getRandomQuestions(allQuestions, 5);
+    $scope.currentIndex = 0;
+    $scope.currentQuestion = $scope.questions[$scope.currentIndex];
+    $scope.score = 0;
+    $scope.timeLeft = 10; // 30 seconds timer
+
+    $scope.updateScore = function(isCorrect){
+        if(isCorrect) $scope.score++;
+        // Move to next question
+        $scope.currentIndex++;
+        if($scope.currentIndex < $scope.questions.length){
+            $scope.currentQuestion = $scope.questions[$scope.currentIndex];
+        } else {
+            $scope.currentQuestion = null; // No more questions
+        }
+    };
+
+    // Timer countdown
+    var timer = $interval(function(){
+        $scope.timeLeft--;
+        if($scope.timeLeft <= 0){
+            $interval.cancel(timer);
+            saveResult();
+        }
+    }, 1000);
+
+    function saveResult(){
+        $http.post('http://localhost:3000/saveResult', {score: $scope.score})
+        .then(function(res){
+            alert("Time's up! Your score: " + $scope.score);
+        })
+        .catch(function(err){
+            alert("Error saving score");
+            console.log(err);
+        });
+    }
+});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

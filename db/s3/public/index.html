@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html ng-app="movieApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Movie Seat Booking</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body { font-family: Arial; text-align: center; background: #f4f4f4; padding: 20px; }
+    .seat { display: inline-block; width: 50px; height: 50px; margin: 10px;
+            background: #ddd; border-radius: 8px; line-height: 50px; cursor: pointer; }
+    .selected { background: green; color: white; }
+    button { margin-top: 20px; padding: 10px 20px; cursor: pointer; }
+  </style>
+</head>
+<body ng-controller="BookingCtrl">
+
+  <h2>🎬 Simple Movie Seat Booking</h2>
+
+  <div>
+    <div ng-repeat="seat in seats"
+         ng-click="toggleSeat(seat)"
+         ng-class="{'seat': true, 'selected': seat.selected}">
+      {{seat.label}}
+    </div>
+  </div>
+
+  <button ng-click="bookSeats()">Book</button>
+
+  <p><b>Selected Seats:</b> {{selectedSeats.join(', ') || 'None'}}</p>
+
+  <script>
+    var app = angular.module('movieApp', []);
+
+    app.controller('BookingCtrl', function($scope, $http) {
+      $scope.seats = [
+        { label: 'A1', selected: false },
+        { label: 'A2', selected: false },
+        { label: 'B1', selected: false },
+        { label: 'B2', selected: false }
+      ];
+
+      $scope.selectedSeats = [];
+
+      $scope.toggleSeat = function(seat) {
+        seat.selected = !seat.selected;
+        $scope.selectedSeats = $scope.seats.filter(s => s.selected).map(s => s.label);
+      };
+
+      $scope.bookSeats = function() {
+        if ($scope.selectedSeats.length === 0) {
+          alert("No seats selected!");
+          return;
+        }
+
+        $http.post('http://localhost:3000/book', { seats: $scope.selectedSeats })
+          .then(res => {
+            alert('🎟 Booking Confirmed: ' + res.data.seats.join(', '));
+          })
+          .catch(() => alert('Booking Failed!'));
+      };
+    });
+  </script>
+
+</body>
+</html>

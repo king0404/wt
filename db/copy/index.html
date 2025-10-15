@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html ng-app="labApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Lab Demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        input, button { margin: 5px; }
+        table { border-collapse: collapse; width: 80%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body ng-controller="MainCtrl">
+
+<h2>User Registration</h2>
+<input type="text" ng-model="newUser.name" placeholder="Name">
+<input type="text" ng-model="newUser.name1" placeholder="Name">
+<input type="text" ng-model="newUser.name2" placeholder="Name">
+<input type="email" ng-model="newUser.email" placeholder="Email">
+<button ng-click="addUser()">Add User</button>
+
+
+<h2>User List</h2>
+<input type="text" ng-model="searchText" placeholder="Search by name/email">
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Name1</th>
+        <th>Name2</th>
+        <th>Email</th>
+        <th>Date</th>
+        <th>Actions</th>
+    </tr>
+    <tr ng-repeat="user in users | filter:searchText | orderBy:'date':true">
+        <td>
+            <span ng-hide="user.editing">{{user.name}}</span>
+            <input ng-show="user.editing" ng-model="user.name">
+        </td>
+        <td>
+            <span ng-hide="user.editing">{{user.name1}}</span>
+            <input ng-show="user.editing" ng-model="user.name1">
+        </td>
+        <td>
+            <span ng-hide="user.editing">{{user.name2}}</span>
+            <input ng-show="user.editing" ng-model="user.name2">
+        </td>
+        <td>
+            <span ng-hide="user.editing">{{user.email}}</span>
+            <input ng-show="user.editing" ng-model="user.email">
+        </td>
+        <td>{{user.date | date:'medium'}}</td>
+        <td>
+            <button ng-hide="user.editing" ng-click="editUser(user)">Edit</button>
+            <button ng-show="user.editing" ng-click="updateUser(user)">Save</button>
+            <button ng-click="deleteUser(user)">Delete</button>
+        </td>
+    </tr>
+</table>
+
+
+<script src="app.js"></script>
+</body>
+</html>

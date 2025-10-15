@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html ng-app="shopApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Shopping Cart</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .item, .cart-item {
+      border: 1px solid #ccc; padding: 10px; margin: 5px; border-radius: 5px;
+    }
+    button { margin: 2px; }
+  </style>
+</head>
+<body ng-controller="ShopController">
+
+  <h2>🛍 Simple Angular Shopping Cart</h2>
+
+  <div>
+    <h3>Add Product</h3>
+    <input type="text" ng-model="newItem.name" placeholder="Name">
+    <input type="number" ng-model="newItem.price" placeholder="Price">
+    <button ng-click="addItem()">Add</button>
+  </div>
+
+  <h3>Product List</h3>
+  <div ng-repeat="item in items" class="item">
+    <b>{{item.name}}</b> - ₹{{item.price}}
+    <button ng-click="addToCart(item)">Add to Cart</button>
+    <button ng-click="editItem(item)">Edit</button>
+    <button ng-click="deleteItem(item._id)">Delete</button>
+  </div>
+
+  <div ng-if="editMode">
+    <h3>Edit Product</h3>
+    <input type="text" ng-model="editItemData.name">
+    <input type="number" ng-model="editItemData.price">
+    <button ng-click="updateItem()">Update</button>
+    <button ng-click="cancelEdit()">Cancel</button>
+  </div>
+
+  <h3>Your Cart</h3>
+  <div ng-repeat="c in cart" class="cart-item">
+    {{c.name}} - ₹{{c.price}}
+  </div>
+
+  <hr>
+  <h4>Total: ₹{{getTotal()}}</h4>
+
+  <!-- Angular App -->
+  <script>
+    var app = angular.module('shopApp', []);
+
+    // Directive Example
+    app.directive('cartSummary', function() {
+      return {
+        restrict: 'E',
+        template: '<h4>🛒 Items in cart: {{cart.length}} | Total: ₹{{getTotal()}}</h4>'
+      };
+    });
+
+    app.controller('ShopController', function($scope, $http) {
+      $scope.items = [];
+      $scope.cart = [];
+      $scope.newItem = {};
+      $scope.editMode = false;
+
+      // Load items
+      function loadItems() {
+        $http.get('/items').then(res => $scope.items = res.data);
+      }
+
+      // Add product
+      $scope.addItem = function() {
+        if(!$scope.newItem.name || !$scope.newItem.price) return;
+        $http.post('/items', $scope.newItem).then(() => {
+          $scope.newItem = {};
+          loadItems();
+        });
+      };
+
+      // Delete product
+      $scope.deleteItem = function(id) {
+        $http.delete('/items/' + id).then(loadItems);
+      };
+
+      // Edit product
+      $scope.editItem = function(item) {
+        $scope.editMode = true;
+        $scope.editItemData = angular.copy(item);
+      };
+
+      $scope.updateItem = function() {
+        $http.put('/items/' + $scope.editItemData._id, $scope.editItemData)
+          .then(() => {
+            $scope.editMode = false;
+            loadItems();
+          });
+      };
+
+      $scope.cancelEdit = function() {
+        $scope.editMode = false;
+      };
+
+      // Add to cart
+      $scope.addToCart = function(item) {
+        $scope.cart.push(item);
+      };
+
+      $scope.getTotal = function() {
+        return $scope.cart.reduce((t, i) => t + i.price, 0);
+      };
+
+      loadItems();
+    });
+  </script>
+</body>
+</html>

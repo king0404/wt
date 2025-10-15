@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html ng-app="eventApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Management</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        input, button { margin: 5px; }
+        .event { border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 5px; }
+    </style>
+</head>
+<body ng-controller="eventCtrl">
+
+<h1>Event Management</h1>
+
+<!-- Create / Add Event -->
+<div>
+    <input type="text" ng-model="newEvent.name" placeholder="Event Name">
+    <input type="date" ng-model="newEvent.date">
+    <input type="text" ng-model="newEvent.location" placeholder="Location">
+    <button ng-click="addEvent()">Add Event</button>
+</div>
+
+<!-- Search Bar -->
+<div>
+    <input type="text" ng-model="searchText" placeholder="Search by event name">
+    <button ng-click="toggleOrder()">Order by Date {{orderAsc ? '▲' : '▼'}}</button>
+</div>
+
+<!-- Display Events -->
+<div class="event" ng-repeat="event in events | filter:{name: searchText} | orderBy:'date':!orderAsc">
+    <strong>{{event.name}}</strong> - {{event.date | date:'yyyy-MM-dd'}} - {{event.location}}
+    <button ng-click="deleteEvent(event._id)">Delete</button>
+</div>
+
+<script>
+var app = angular.module('eventApp', []);
+
+// Factory to handle API calls
+app.factory('eventFactory', ['$http', function($http){
+    return {
+        getEvents: function(){ return $http.get('http://localhost:3000/events'); },
+        addEvent: function(event){ return $http.post('http://localhost:3000/events', event); },
+        deleteEvent: function(id){ return $http.delete('http://localhost:3000/events/' + id); }
+    };
+}]);
+
+app.controller('eventCtrl', ['$scope','eventFactory', function($scope, eventFactory){
+    $scope.events = [];
+    $scope.newEvent = {};
+    $scope.searchText = '';
+    $scope.orderAsc = true;
+
+    // Load events
+    function loadEvents(){
+        eventFactory.getEvents().then(res => $scope.events = res.data);
+    }
+
+    loadEvents();
+
+    // Add event
+    $scope.addEvent = function(){
+        if(!$scope.newEvent.name || !$scope.newEvent.date) return alert("Enter name & date");
+        eventFactory.addEvent($scope.newEvent).then(res => {
+            $scope.newEvent = {};
+            loadEvents();
+        });
+    }
+
+    // Delete event
+    $scope.deleteEvent = function(id){
+        eventFactory.deleteEvent(id).then(res => loadEvents());
+    }
+
+    // Toggle order by date
+    $scope.toggleOrder = function(){
+        $scope.orderAsc = !$scope.orderAsc;
+    }
+}]);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html ng-app="studentApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Management</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js"></script>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    table { border-collapse: collapse; width: 60%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    input { margin: 5px; }
+    button { margin: 5px; }
+  </style>
+</head>
+<body ng-controller="StudentController">
+
+<h2>Student Management System</h2>
+
+<div>
+  <input type="text" ng-model="student.name" placeholder="Name">
+  <input type="number" ng-model="student.age" placeholder="Age">
+  <input type="text" ng-model="student.grade" placeholder="Grade">
+  <button ng-click="addStudent()" ng-show="!editMode">Add Student</button>
+  <button ng-click="updateStudent()" ng-show="editMode">Update Student</button>
+</div>
+
+<table>
+  <tr>
+    <th>Name</th><th>Age</th><th>Grade</th><th>Actions</th>
+  </tr>
+  <tr ng-repeat="s in students">
+    <td>{{s.name}}</td>
+    <td>{{s.age}}</td>
+    <td>{{s.grade}}</td>
+    <td>
+      <button ng-click="edit(s)">Edit</button>
+      <button ng-click="deleteStudent(s._id)">Delete</button>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

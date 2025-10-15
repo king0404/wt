@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html ng-app="employeeApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee CRUD</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; width: 500px; margin: 20px auto; }
+    input { padding: 5px; margin: 5px; }
+    button { padding: 5px 10px; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+  </style>
+</head>
+<body ng-controller="EmployeeController as vm">
+
+  <h2>Employee Management</h2>
+
+  <input type="text" ng-model="vm.newEmployee.name" placeholder="Name">
+  <input type="text" ng-model="vm.newEmployee.position" placeholder="Position">
+  <button ng-click="vm.addEmployee()">Add</button>
+
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Position</th>
+      <th>Actions</th>
+    </tr>
+    <tr ng-repeat="emp in vm.employees">
+      <td><input ng-model="emp.name"></td>
+      <td><input ng-model="emp.position"></td>
+      <td>
+        <button ng-click="vm.updateEmployee(emp)">Update</button>
+        <button ng-click="vm.deleteEmployee($index)">Delete</button>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html ng-app="marksApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Marks Dashboard</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body { font-family: Arial; background: #f4f4f4; text-align: center; padding: 20px; }
+    .card { background: white; display: inline-block; padding: 15px; margin: 10px;
+            border-radius: 10px; box-shadow: 0 0 5px #ccc; width: 180px; }
+    h2 { color: #333; }
+    .pass { color: green; }
+    .fail { color: red; }
+    .distinction { color: blue; }
+    input { padding: 8px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; background: #007bff; color: #fff; }
+  </style>
+</head>
+<body ng-controller="MainCtrl">
+
+  <h2>🎓 Student Marks Dashboard</h2>
+
+  <!-- Add new student -->
+  <div>
+    <input type="text" ng-model="newStudent.name" placeholder="Student Name">
+    <input type="number" ng-model="newStudent.marks" placeholder="Marks">
+    <button ng-click="addStudent()">Add Student</button>
+  </div>
+
+  <!-- Filter/search by name -->
+  <div style="margin-top:10px;">
+    <input type="text" ng-model="searchName" placeholder="Search by name">
+  </div>
+
+  <!-- Show filtered student list -->
+  <div>
+    <student-card ng-repeat="stu in students | filter:{name: searchName}" info="stu"></student-card>
+  </div>
+
+  <script>
+    // Main App
+    var app = angular.module('marksApp', []);
+
+    // Service: provides student data
+    app.service('StudentService', function() {
+      var students = [
+        { name: 'Alice', marks: 92 },
+        { name: 'Bob', marks: 68 },
+        { name: 'Charlie', marks: 45 },
+        { name: 'Daisy', marks: 80 }
+      ];
+      this.getStudents = function() { return students; };
+      this.addStudent = function(stu) { students.push(stu); };
+    });
+
+    // Filter: determines grade
+    app.filter('gradeFilter', function() {
+      return function(marks) {
+        if (marks >= 85) return 'Distinction';
+        else if (marks >= 50) return 'Pass';
+        else return 'Fail';
+      };
+    });
+
+    // Custom Directive
+    app.directive('studentCard', function() {
+      return {
+        restrict: 'E',
+        scope: { info: '=' },
+        template:
+          `<div class="card" ng-class="{
+              'distinction': info.marks >= 85,
+              'pass': info.marks >= 50 && info.marks < 85,
+              'fail': info.marks < 50
+            }">
+            <h3>{{info.name}}</h3>
+            <p>Marks: {{info.marks}}</p>
+            <p>Grade: {{info.marks | gradeFilter}}</p>
+          </div>`
+      };
+    });
+
+    // Controller
+    app.controller('MainCtrl', function($scope, StudentService) {
+      $scope.students = StudentService.getStudents();
+      $scope.newStudent = {};
+
+      $scope.addStudent = function() {
+        if (!$scope.newStudent.name || !$scope.newStudent.marks) {
+          alert("Please enter both name and marks!");
+          return;
+        }
+        StudentService.addStudent({
+          name: $scope.newStudent.name,
+          marks: parseInt($scope.newStudent.marks)
+        });
+        $scope.newStudent = {}; // reset input fields
+      };
+    });
+  </script>
+
+</body>
+</html>

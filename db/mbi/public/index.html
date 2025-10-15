@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html ng-app="movieApp">
+<head>
+  <meta charset="UTF-8">
+  <title>🎟 Online Movie Ticket Booking</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+  <script src="app.js"></script>
+
+  <style>
+    body { font-family: Arial; background: #f0f0f0; text-align: center; padding: 20px; }
+    h2 { color: #333; }
+    select, button { padding: 6px 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+
+    .movie-card {
+      background: white; display: inline-block; padding: 15px;
+      margin: 10px; border-radius: 10px; box-shadow: 0 0 5px #ccc;
+      width: 280px; vertical-align: top;
+    }
+
+    .seat {
+      display: inline-block; width: 25px; height: 25px;
+      margin: 3px; border-radius: 4px; cursor: pointer; transition: 0.3s;
+    }
+
+    .available { background: #4CAF50; }   /* Green */
+    .booked { background: #E74C3C; }      /* Red */
+    .seat:hover { transform: scale(1.2); }
+
+    .ng-enter {
+      transition: 0.3s ease-in;
+      opacity: 0;
+    }
+    .ng-enter-active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body ng-controller="MainCtrl">
+
+  <h2>🎬 Online Movie Ticket Booking Dashboard</h2>
+
+  <!-- Filters -->
+  <div>
+    <label>Filter by Genre:</label>
+    <select ng-model="selectedGenre">
+      <option value="">All</option>
+      <option ng-repeat="g in genres">{{g}}</option>
+    </select>
+
+    <label>Filter by Showtime:</label>
+    <select ng-model="selectedShowtime">
+      <option value="">All</option>
+      <option ng-repeat="time in showtimes">{{time}}</option>
+    </select>
+  </div>
+
+  <!-- Movie Cards -->
+  <div>
+    <div class="movie-card" ng-repeat="movie in movies | filter:genreFilter | filter:showtimeFilter track by $index" ng-animate="'fade'">
+      <h3>{{movie.title}}</h3>
+      <p>Genre: {{movie.genre}}</p>
+      <p>Showtime: {{movie.showtime}}</p>
+      <div>
+        <div ng-repeat="seat in movie.seats" class="seat"
+             ng-class="{'available': !seat.booked, 'booked': seat.booked}"
+             ng-click="toggleSeat(movie, seat)">
+        </div>
+      </div>
+      <p>{{movie.availableSeats()}} seats available</p>
+    </div>
+  </div>
+
+</body>
+</html>

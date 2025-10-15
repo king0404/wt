@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app="hospitalApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Hospital Management</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js"></script>
+</head>
+<body ng-controller="PatientController">
+  <h2>🏥 Hospital Management System</h2>
+
+  <form ng-submit="addOrUpdatePatient()">
+    <input type="text" ng-model="patient.name" placeholder="Patient Name" required>
+    <input type="text" ng-model="patient.disease" placeholder="Disease" required>
+    <input type="date" ng-model="patient.admissionDate" required>
+    <button type="submit">{{ editMode ? "Update" : "Add" }}</button>
+    <button type="button" ng-click="clearForm()">Clear</button>
+  </form>
+
+  <h3>Patient List</h3>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>Name</th>
+      <th>Disease</th>
+      <th>Admission Date</th>
+      <th>Actions</th>
+    </tr>
+    <tr ng-repeat="p in patients">
+      <td>{{ p.name }}</td>
+      <td>{{ p.disease }}</td>
+      <td>{{ p.admissionDate }}</td>
+      <td>
+        <button ng-click="editPatient(p)">Edit</button>
+        <button ng-click="deletePatient(p._id)">Delete</button>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
