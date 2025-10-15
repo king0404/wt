@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- Root element: Order -->
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="orderID" type="xs:string"/>
+        <xs:element name="customerName" type="xs:string"/>
+        <xs:element name="productID" type="xs:string"/>
+        <xs:element name="quantity">
+          <xs:simpleType>
+            <xs:restriction base="xs:integer">
+              <xs:minInclusive value="1"/> <!-- Must be positive -->
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="pricePerUnit" type="xs:decimal"/>
+        <xs:element name="orderStatus">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Pending"/>
+              <xs:enumeration value="Shipped"/>
+              <xs:enumeration value="Delivered"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

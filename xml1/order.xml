@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="orderSchema.xsd">
+  <orderID>ORD1001</orderID>
+  <customerName>John Doe</customerName>
+  <productID>P123</productID>
+  <quantity>3</quantity>
+  <pricePerUnit>499.99</pricePerUnit>
+  <orderStatus>Pending</orderStatus>
+</Order>
