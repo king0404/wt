@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="productApp">
+<head >
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body ng-controller="productctrl">
+
+
+    <form ng-submit="addProduct()">
+
+        <input type="text" ng-model="product.name" placeholder="Enter Product Name">
+        <input type="number" ng-model="product.quantity" placeholder="Enter Quantity">
+        <button type="submit">AddProduct</button>
+    </form>
+    <input type="text" ng-model="searchText" placeholder="Search by Product Name">
+<br><br>
+
+<table>
+    <tr>
+    <th>Product_Name</th>
+    <th>Product Quantity</th>
+     <th>Actions</th>
+    </tr>
+<product-card
+  ng-repeat="p in products | filter:{name: searchText}"
+  product="p"
+  on-update="updateProduct(p)"
+  on-delete="deleteProduct(id)">
+</product-card>
+
+</table>
+
+
+<script>
+
+    const app=angular.module('productApp',[]);
+    app.directive('productCard', function() {
+  return {
+    restrict: 'E', // use as element <product-card>
+    scope: {
+      product: '=',     // two-way bind to product object
+      onUpdate: '&',    // parent function for update
+      onDelete: '&'     // parent function for delete
+    },
+    template: `
+      <div style="border:1px solid gray; padding:10px; margin:8px; border-radius:10px; width:250px;">
+        <p><strong>Name:</strong> <input type="text" ng-model="product.name"></p>
+        <p><strong>Quantity:</strong> <input type="number" ng-model="product.quantity"></p>
+        <button ng-click="onUpdate({p: product})">Update</button>
+        <button ng-click="onDelete({id: product._id})">Delete</button>
+      </div>
+    `
+  };
+});
+
+    
+    app.controller('productctrl',function($scope,$http){
+
+        const API='http://localhost:3001/products';
+
+        function loadProducts()
+        {
+            $http.get(API).then(res=>$scope.products=res.data);
+        }
+        loadProducts();
+
+        $scope.addProduct=function(){
+            $http.post(API,$scope.product).then(()=>{
+            $scope.product={};
+            loadProducts();
+            }
+        );
+        }
+        $scope.updateProduct=function(p)
+        {
+            $http.put(API+'/'+p._id,p).then(loadProducts);
+        }
+        $scope.deleteProduct=function(id)
+        {
+         
+            $http.delete(API+'/'+id).then(loadProducts);
+        }
+
+    });
+</script>
+    
+</body>
+</html>
